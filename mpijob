@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#use:
+#mpijob np nt program
+
+if [ $# -ne 3 ]; then 
+  echo mpijob np nt program
+  exit
+fi
+
+name=$3
+folder=/home/fisica
+echo mpijob $1 $2 $3
+
+export OMP_NUM_THREADS=$2
+
+np=0
+for host in $(cat ./hosts); 
+do
+  echo scp $name $host:$folder 
+  scp $name $host:$folder 
+  ((np++))
+  echo $np
+  if [ "$np" -eq "$1" ]
+  then  
+    break
+  fi
+done
+
+mpirun -x OMP_NUM_THREADS -np $1 -machinefile hosts  $folder/$name  
+
+
